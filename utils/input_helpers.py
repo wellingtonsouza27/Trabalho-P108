@@ -61,12 +61,11 @@ def input_rate(symbol, key_prefix):
         return value
 
 
-def input_lambda():
-    return input_rate("λ", "lambda")
+def input_lambda(prefix=""):
+    return input_rate("λ", f"{prefix}_lambda")
 
-
-def input_mi():
-    return input_rate("μ", "mi")
+def input_mi(prefix=""):
+    return input_rate("μ", f"{prefix}_mi")
 
 
 def input_float(label, placeholder):
