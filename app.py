@@ -1,5 +1,5 @@
 import streamlit as st
-from models_pages import mm1_page, mms_page
+from pages import mm1_page, mms_page
 
 st.title("Simulador de Filas")
 
