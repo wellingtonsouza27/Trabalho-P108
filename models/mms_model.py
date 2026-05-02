@@ -1,24 +1,20 @@
 import math
 
-
 class MMS:
-
     def __init__(self, lambda_, mi, s):
         if lambda_ <= 0:
             raise ValueError("λ deve ser maior que zero")
-
         if mi <= 0:
             raise ValueError("μ deve ser maior que zero")
-
         if s < 2:
-            raise ValueError("s deve ser >= 2")
+            raise ValueError("s deve ser >= 2 (Para s=1, use o modelo MM1)")
 
-        self._lambda_ = lambda_
-        self._mi = mi
+        self._lambda_ = float(lambda_)
+        self._mi = float(mi)
         self._s = int(s)
 
         if self.rho >= 1:
-            raise ValueError("Sistema instável (ρ >= 1)")
+            raise ValueError(f"Sistema instável: a taxa de ocupação (ρ = {self.rho:.2f}) deve ser menor que 1.")
 
     @property
     def rho(self):
@@ -31,20 +27,17 @@ class MMS:
     @property
     def p0(self):
         soma = 0
-
         for n in range(self._s):
             soma += (self.a ** n) / math.factorial(n)
 
         termo_final = ((self.a ** self._s) / math.factorial(self._s)) * (
             1 / (1 - self.rho)
         )
-
         return 1 / (soma + termo_final)
 
     def prob_n(self, n):
         if n < 0:
             raise ValueError("n deve ser >= 0")
-
         if n <= self._s:
             return ((self.a ** n) / math.factorial(n)) * self.p0
         else:
@@ -69,35 +62,30 @@ class MMS:
     def avg_time_system(self):
         return self.avg_time_queue() + (1 / self._mi)
 
-    def prob_wait_queue_zero(self):
-        soma = 0
-        for n in range(self._s):
-            soma += self.prob_n(n)
-        return soma
-
     def prob_wait_queue_greater_than(self, t):
+        """P(Wq > t): Probabilidade de esperar na fila mais que tempo t"""
         if t < 0:
             raise ValueError("t deve ser >= 0")
-
-        return (
-            (1 - self.prob_wait_queue_zero())
-            * math.exp(-self._s * self._mi * (1 - self.rho) * t)
-        )
+        
+        # Probabilidade de todos os servidores estarem ocupados (C de Erlang)
+        p_espera = ((self.a ** self._s) / (math.factorial(self._s) * (1 - self.rho))) * self.p0
+        
+        return p_espera * math.exp(-self._s * self._mi * (1 - self.rho) * t)
 
     def prob_wait_system_greater_than(self, t):
+        """P(W > t): Probabilidade de tempo total no sistema ser maior que t"""
         if t < 0:
             raise ValueError("t deve ser >= 0")
 
-        return math.exp(-self._mi * t)
-
-    def summary(self):
-        print("=== RESUMO - Fila M/M/s ===")
-        print(f"λ = {self._lambda_:.4f}")
-        print(f"μ = {self._mi:.4f}")
-        print(f"s = {self._s}")
-        print(f"ρ = {self.rho:.4f}")
-        print(f"P0 = {self.p0:.4f}")
-        print(f"Lq = {self.avg_clients_queue():.4f}")
-        print(f"Wq = {self.avg_time_queue():.4f}")
-        print(f"L = {self.avg_clients_system():.4f}")
-        print(f"W = {self.avg_time_system():.4f}")
+        p_espera = ((self.a ** self._s) / (math.factorial(self._s) * (1 - self.rho))) * self.p0
+        
+        # Caso especial para evitar divisão por zero se s-1-a for nulo
+        if abs(self._s - 1 - self.a) < 1e-9:
+            return math.exp(-self._mi * t) * (1 + p_espera * self._mi * t)
+        
+        # Fórmula geral para M/M/s
+        termo_exp_mi = math.exp(-self._mi * t)
+        fracao = p_espera / (self._s - 1 - self.a)
+        ajuste = 1 - math.exp(-self._mi * t * (self._s - 1 - self.a))
+        
+        return termo_exp_mi * (1 + fracao * ajuste)
