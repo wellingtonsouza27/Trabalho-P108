@@ -36,7 +36,6 @@ def render():
         n = st.number_input(
             "n",
             min_value=0,
-            max_value=int(k),
             step=1,
             key="mm1n_n"
         )
