@@ -53,17 +53,3 @@ class MM1:
 
     def avg_time_queue(self):
         return self._lambda_ / (self._mi * self.diff)
-
-    def summary(self) -> None:
-        rho = self.rho
-
-        print("=== RESUMO - Fila M/M/1 ===")
-        print(f"Taxa de chegada (λ)     : {self._lambda_:.4f}")
-        print(f"Taxa de serviço (μ)     : {self._mi:.4f}")
-        print(f"Utilização (ρ)          : {rho:.4f} ({rho*100:.2f}%)")
-        print(f"Nº médio no sistema (L) : {self.avg_clients_system():.4f}")
-        print(f"Nº médio na fila (Lq)   : {self.avg_clients_queue():.4f}")
-        print(f"Tempo médio no sistema (W) : {self.avg_time_system():.4f}")
-        print(f"Tempo médio na fila (Wq)   : {self.avg_time_queue():.4f}")
-        print(f"Probabilidade de idle      : {self.prob_idle():.4f}")
-        print("=" * 35)
