@@ -63,15 +63,15 @@ def render():
 
         st.subheader("Resultados principais")
 
-        st.write(f"Taxa de ocupação (ρ): {fila.rho:.4f}")
+        st.write(f"Taxa de ocupação (ρ): {fila.rho:.4g}")
         st.write(
             f"Probabilidade do sistema ocioso (P0): "
-            f"{fila.prob_idle():.4f} ({fila.prob_idle()*100:.2f}%)"
+            f"{fila.prob_idle():.4g} ({fila.prob_idle()*100:.2f}%)"
         )
-        st.write(f"Número médio no sistema (L): {fila.avg_clients_system():.4f}")
-        st.write(f"Número médio na fila (Lq): {fila.avg_clients_queue():.4f}")
-        st.write(f"Tempo médio no sistema (W): {fila.avg_time_system():.4f}")
-        st.write(f"Tempo médio na fila (Wq): {fila.avg_time_queue():.4f}")
+        st.write(f"Número médio no sistema (L): {fila.avg_clients_system():.4g}")
+        st.write(f"Número médio na fila (Lq): {fila.avg_clients_queue():.4g}")
+        st.write(f"Tempo médio no sistema (W): {fila.avg_time_system():.4g}")
+        st.write(f"Tempo médio na fila (Wq): {fila.avg_time_queue():.4g}")
 
         st.subheader("Resultados condicionais")
 
@@ -79,14 +79,14 @@ def render():
             prob_n = fila.prob_n(n)
             st.write(
                 f"Probabilidade de haver n clientes: "
-                f"{prob_n:.4f} ({prob_n*100:.2f}%)"
+                f"{prob_n:.4g} ({prob_n*100:.2f}%)"
             )
 
         if usar_r:
             prob_r = fila.prob_greater_r(r)
             st.write(
                 f"Probabilidade de clientes > r: "
-                f"{prob_r:.4f} ({prob_r*100:.2f}%)"
+                f"{prob_r:.4g} ({prob_r*100:.2f}%)"
             )
 
         if usar_t and t is not None:
@@ -95,10 +95,10 @@ def render():
 
             st.write(
                 f"Probabilidade W > t: "
-                f"{prob_sys:.4f} ({prob_sys*100:.2f}%)"
+                f"{prob_sys:.4g} ({prob_sys*100:.2f}%)"
             )
 
             st.write(
                 f"Probabilidade Wq > t: "
-                f"{prob_q:.4f} ({prob_q*100:.2f}%)"
+                f"{prob_q:.4g} ({prob_q*100:.2f}%)"
             )

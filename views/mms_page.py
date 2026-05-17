@@ -4,9 +4,9 @@ from utils.input_helpers import input_lambda, input_mi
 
 
 def render():
-    st.header("Modelo M/M/s (s > 1)")
+    st.header("Modelo M/M/s>1")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
         lambda_ = input_lambda("mms")
@@ -14,6 +14,8 @@ def render():
     with col2:
         mi = input_mi("mms")
 
+    col3, = st.columns(1)
+    
     with col3:
         s = st.number_input(
             "Servidores (s)",
@@ -68,22 +70,35 @@ def render():
 
         st.subheader("Resultados principais")
 
-        st.write(f"ρ = {fila.rho:.4f}")
-        st.write(f"P0 = {fila.p0:.4f}")
-        st.write(f"Lq = {fila.avg_clients_queue():.4f}")
-        st.write(f"Wq = {fila.avg_time_queue():.4f}")
-        st.write(f"L = {fila.avg_clients_system():.4f}")
-        st.write(f"W = {fila.avg_time_system():.4f}")
+        st.write(f"Taxa de ocupação (ρ): {fila.rho:.4g}")
+        st.write(
+            f"Probabilidade do sistema ocioso (P0): "
+            f"{fila.p0():.4f} ({fila.p0()*100:.2f}%)"
+        )
+        st.write(f"Número médio no sistema (L): {fila.avg_clients_system():.4g}")
+        st.write(f"Número médio na fila (Lq): {fila.avg_clients_queue():.4g}")
+        st.write(f"Tempo médio no sistema (W): {fila.avg_time_system():.4g}")
+        st.write(f"Tempo médio na fila (Wq): {fila.avg_time_queue():.4g}")
 
         st.subheader("Resultados condicionais")
 
         if usar_n:
-            pn = fila.prob_n(n)
-            st.write(f"P(n clientes) = {pn:.4f}")
+            prob_n = fila.prob_n(n)
+            st.write(
+                f"Probabilidade de haver n clientes: "
+                f"{prob_n:.4f} ({prob_n*100:.2f}%)"
+            )
 
         if usar_t and t is not None:
-            pwq = fila.prob_wait_queue_greater_than(t)
-            st.write(f"P(Wq > t) = {pwq:.4f}")
+            prob_sys = fila.prob_wait_system_greater_than(t)
+            prob_q = fila.prob_wait_queue_greater_than(t)
 
-            pw = fila.prob_wait_system_greater_than(t)
-            st.write(f"P(W > t) = {pw:.4f}")
+            st.write(
+                f"Probabilidade W > t: "
+                f"{prob_sys:.4f} ({prob_sys*100:.2f}%)"
+            )
+
+            st.write(
+                f"Probabilidade Wq > t: "
+                f"{prob_q:.4f} ({prob_q*100:.2f}%)"
+            )
