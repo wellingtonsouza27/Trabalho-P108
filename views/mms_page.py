@@ -15,7 +15,7 @@ def render():
         mi = input_mi("mms")
 
     col3, = st.columns(1)
-    
+
     with col3:
         s = st.number_input(
             "Servidores (s)",
@@ -46,13 +46,15 @@ def render():
 
     if usar_t:
         t_str = st.text_input(
-            "t",
-            placeholder="Ex: 1.5",
+            "t (minutos)",
+            placeholder="Ex: 15",
             key="mms_t"
         )
 
         try:
-            t = float(t_str) if t_str else None
+            # Converte minutos para horas
+            t = (float(t_str) / 60) if t_str else None
+
         except:
             st.error("Digite valor válido para t")
             t = None
@@ -71,34 +73,53 @@ def render():
         st.subheader("Resultados principais")
 
         st.write(f"Taxa de ocupação (ρ): {fila.rho:.4g}")
+
         st.write(
             f"Probabilidade do sistema ocioso (P0): "
-            f"{fila.p0():.4f} ({fila.p0()*100:.2f}%)"
+            f"{fila.p0:.4f} ({fila.p0*100:.2f}%)"
         )
-        st.write(f"Número médio no sistema (L): {fila.avg_clients_system():.4g}")
-        st.write(f"Número médio na fila (Lq): {fila.avg_clients_queue():.4g}")
-        st.write(f"Tempo médio no sistema (W): {fila.avg_time_system():.4g}")
-        st.write(f"Tempo médio na fila (Wq): {fila.avg_time_queue():.4g}")
+
+        st.write(
+            f"Número médio no sistema (L): "
+            f"{fila.avg_clients_system():.4g}"
+        )
+
+        st.write(
+            f"Número médio na fila (Lq): "
+            f"{fila.avg_clients_queue():.4g}"
+        )
+
+        st.write(
+            f"Tempo médio no sistema (W): "
+            f"{fila.avg_time_system():.4g}"
+        )
+
+        st.write(
+            f"Tempo médio na fila (Wq): "
+            f"{fila.avg_time_queue():.4g}"
+        )
 
         st.subheader("Resultados condicionais")
 
         if usar_n:
             prob_n = fila.prob_n(n)
+
             st.write(
                 f"Probabilidade de haver n clientes: "
                 f"{prob_n:.4f} ({prob_n*100:.2f}%)"
             )
 
         if usar_t and t is not None:
+
             prob_sys = fila.prob_wait_system_greater_than(t)
             prob_q = fila.prob_wait_queue_greater_than(t)
 
             st.write(
                 f"Probabilidade W > t: "
-                f"{prob_sys:.4f} ({prob_sys*100:.2f}%)"
+                f"{prob_sys:.6f} ({prob_sys*100:.2f}%)"
             )
 
             st.write(
                 f"Probabilidade Wq > t: "
-                f"{prob_q:.4f} ({prob_q*100:.2f}%)"
+                f"{prob_q:.6f} ({prob_q*100:.2f}%)"
             )

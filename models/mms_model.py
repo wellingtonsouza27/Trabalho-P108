@@ -63,29 +63,47 @@ class MMS:
         return self.avg_time_queue() + (1 / self._mi)
 
     def prob_wait_queue_greater_than(self, t):
-        """P(Wq > t): Probabilidade de esperar na fila mais que tempo t"""
+        """P(Wq > t)"""
         if t < 0:
             raise ValueError("t deve ser >= 0")
-        
-        # Probabilidade de todos os servidores estarem ocupados (C de Erlang)
-        p_espera = ((self.a ** self._s) / (math.factorial(self._s) * (1 - self.rho))) * self.p0
-        
-        return p_espera * math.exp(-self._s * self._mi * (1 - self.rho) * t)
+
+        # Erlang C
+        c = (
+            ((self.a ** self._s) / math.factorial(self._s))
+            * (1 / (1 - self.rho))
+            * self.p0
+        )
+
+        return c * math.exp(-(self._s * self._mi - self._lambda_) * t)
 
     def prob_wait_system_greater_than(self, t):
-        """P(W > t): Probabilidade de tempo total no sistema ser maior que t"""
+        """P(W > t)"""
         if t < 0:
             raise ValueError("t deve ser >= 0")
 
-        p_espera = ((self.a ** self._s) / (math.factorial(self._s) * (1 - self.rho))) * self.p0
-        
-        # Caso especial para evitar divisão por zero se s-1-a for nulo
-        if abs(self._s - 1 - self.a) < 1e-9:
-            return math.exp(-self._mi * t) * (1 + p_espera * self._mi * t)
-        
-        # Fórmula geral para M/M/s
-        termo_exp_mi = math.exp(-self._mi * t)
-        fracao = p_espera / (self._s - 1 - self.a)
-        ajuste = 1 - math.exp(-self._mi * t * (self._s - 1 - self.a))
-        
-        return termo_exp_mi * (1 + fracao * ajuste)
+        # Erlang C
+        c = (
+            ((self.a ** self._s) / math.factorial(self._s))
+            * (1 / (1 - self.rho))
+            * self.p0
+        )
+
+        alpha = self._s * self._mi - self._lambda_
+
+        # Caso especial para evitar divisão por zero
+        if abs(alpha - self._mi) < 1e-9:
+            return math.exp(-self._mi * t) * (
+                1 + c * self._mi * t
+            )
+
+        termo1 = (1 - c) * math.exp(-self._mi * t)
+
+        termo2 = c * (
+            (
+                alpha * math.exp(-self._mi * t)
+                - self._mi * math.exp(-alpha * t)
+            )
+            / (alpha - self._mi)
+        )
+
+        return termo1 + termo2
