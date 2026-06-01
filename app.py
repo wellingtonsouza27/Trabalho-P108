@@ -1,9 +1,9 @@
 import streamlit as st
-from views import mm1_page, mms_page, mm1k_page, mmsk_page, mm1n_page, mmsn_page
+from views import mm1_page, mms_page, mm1k_page, mmsk_page, mm1n_page, mmsn_page, mg1_page, priority_page
 
 st.title("Simulador de Filas")
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["M/M/1", "M/M/s>1", "M/M/1/K", "M/M/s>1/K", "M/M/1/N", "M/M/s>1/N"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["M/M/1", "M/M/s>1", "M/M/1/K", "M/M/s>1/K", "M/M/1/N", "M/M/s>1/N", "M/G/1", "Prioridades"])
 
 with tab1:
     mm1_page.render()
@@ -22,3 +22,9 @@ with tab5:
 
 with tab6:
     mmsn_page.render()
+
+with tab7:
+    mg1_page.render()
+
+with tab8:
+    priority_page.render()
