@@ -3,10 +3,24 @@ from models.priority_model import PriorityQueue
 
 
 def render():
+    st.markdown("""
+        <style>
+        [data-testid="stMetric"] {
+            text-align: center;
+        }
+        [data-testid="stMetricLabel"] {
+            display: flex;
+            justify-content: center;
+        }
+        [data-testid="stMetricValue"] {
+            display: flex;
+            justify-content: center;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
     st.header("Modelo com Prioridades")
 
-    # ── Tipo de prioridade ──────────────────────────────────────────────────
     preemptive = st.toggle(
         "Com interrupção (preemptivo)",
         value=False,
@@ -15,7 +29,6 @@ def render():
 
     st.divider()
 
-    # ── Parâmetros globais ──────────────────────────────────────────────────
     col_s, col_mu = st.columns(2)
 
     with col_s:
@@ -41,7 +54,6 @@ def render():
 
     st.divider()
 
-    # ── Classes de prioridade ───────────────────────────────────────────────
     n_classes = st.number_input(
         "Número de classes de prioridade",
         min_value=2,
@@ -54,7 +66,7 @@ def render():
     st.caption("Classe 1 = maior prioridade")
 
     lambdas = []
-    cols = st.columns(min(int(n_classes), 5))  # no máximo 5 por linha
+    cols = st.columns(min(int(n_classes), 5))
 
     for k in range(int(n_classes)):
         col = cols[k % len(cols)]
@@ -73,7 +85,6 @@ def render():
 
     st.divider()
 
-    # ── Calcular ────────────────────────────────────────────────────────────
     if st.button("Calcular", key="priority_btn"):
 
         try:
@@ -90,17 +101,33 @@ def render():
         mode_label = "Com interrupção" if preemptive else "Sem interrupção"
         st.subheader(f"Resultados — {mode_label}")
 
-        st.write(f"ρ total = {fila.rho_total:.4f}")
-
-        st.divider()
+        with st.container(border=True):
+            st.metric("Taxa de ocupação (ρ)", f"{fila.rho_total:.4g}")
 
         resultados = fila.results()
 
         for res in resultados:
+            st.divider()
+
             k = res["classe"]
             st.markdown(f"**Classe {k}** (λ{k} = {res['lambda']})")
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("W",  f"{res['W']:.4f}")
-            col2.metric("Wq", f"{res['Wq']:.4f}")
-            col3.metric("L",  f"{res['L']:.4f}")
-            col4.metric("Lq", f"{res['Lq']:.4f}")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                with st.container(border=True):
+                    st.metric("Tempo médio no sistema (W)", f"{res['W']:.4f}")
+
+            with col2:
+                with st.container(border=True):
+                    st.metric("Tempo médio na fila (Wq)", f"{res['Wq']:.4f}")
+
+            col3, col4 = st.columns(2)
+
+            with col3:
+                with st.container(border=True):
+                    st.metric("Número médio no sistema (L)", f"{res['L']:.4f}")
+
+            with col4:
+                with st.container(border=True):
+                    st.metric("Número médio na fila (Lq)", f"{res['Lq']:.4f}")

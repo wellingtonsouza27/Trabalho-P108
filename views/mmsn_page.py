@@ -4,6 +4,22 @@ from utils.input_helpers import input_lambda, input_mi
 
 
 def render():
+    st.markdown("""
+        <style>
+        [data-testid="stMetric"] {
+            text-align: center;
+        }
+        [data-testid="stMetricLabel"] {
+            display: flex;
+            justify-content: center;
+        }
+        [data-testid="stMetricValue"] {
+            display: flex;
+            justify-content: center;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
     st.header("Modelo M/M/s>1/N")
 
     col1, col2 = st.columns(2)
@@ -15,6 +31,7 @@ def render():
         mi = input_mi("mmsn")
 
     col3, col4 = st.columns(2)
+
     with col3:
         N = st.number_input(
             "Clientes (N)",
@@ -60,21 +77,54 @@ def render():
 
         st.subheader("Resultados principais")
 
-        st.write(f"Taxa de ocupação (ρ): {fila.rho:.4g}")
-        st.write(
-            f"Probabilidade do sistema ocioso (P0): "
-            f"{fila.prob_idle():.4g} ({fila.prob_idle()*100:.2f}%)"
-        )
-        st.write(f"Número médio no sistema (L): {fila.avg_clients_system():.4g}")
-        st.write(f"Número médio na fila (Lq): {fila.avg_clients_queue():.4g}")
-        st.write(f"Tempo médio no sistema (W): {fila.avg_time_system():.4g}")
-        st.write(f"Tempo médio na fila (Wq): {fila.avg_time_queue():.4g}")
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            with st.container(border=True):
+                st.metric("Taxa de ocupação (ρ)", f"{fila.rho:.4g}")
+
+        with c2:
+            with st.container(border=True):
+                st.metric(
+                    "Prob. do sistema ocioso (P0)",
+                    f"{fila.prob_idle():.4g}",
+                    help=f"{fila.prob_idle()*100:.2f}%"
+                )
+
+        with c3:
+            with st.container(border=True):
+                st.metric("Número médio no sistema (L)", f"{fila.avg_clients_system():.4g}")
+
+        c4, c5, c6 = st.columns(3)
+
+        with c4:
+            with st.container(border=True):
+                st.metric("Número médio na fila (Lq)", f"{fila.avg_clients_queue():.4g}")
+
+        with c5:
+            with st.container(border=True):
+                st.metric("Tempo médio no sistema (W)", f"{fila.avg_time_system():.4g}")
+
+        with c6:
+            with st.container(border=True):
+                st.metric("Tempo médio na fila (Wq)", f"{fila.avg_time_queue():.4g}")
 
         st.subheader("Resultados condicionais")
 
+        c7, c8, c9 = st.columns(3)
+        
+        with c7:
+            pass
+
         if usar_n:
             prob_n = fila.prob_n(n)
-            st.write(
-                f"Probabilidade de haver n clientes: "
-                f"{prob_n:.4g} ({prob_n*100:.2f}%)"
-            )
+            with c8:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. de haver n clientes", 
+                        f"{prob_n:.4g}",
+                        help=f"{prob_n*100:.2f}%"
+                        )
+        
+        with c9:
+            pass
