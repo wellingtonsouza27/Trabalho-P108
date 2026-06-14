@@ -4,7 +4,6 @@ from views import mm1_page, mms_page, mm1k_page, mmsk_page, mm1n_page, mmsn_page
 st.set_page_config(
     page_title="Teoria das Filas",
     page_icon="📊",
-    layout="wide"
 )
 
 st.title("Simulador de Filas")
