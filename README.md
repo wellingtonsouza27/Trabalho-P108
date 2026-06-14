@@ -10,7 +10,7 @@ O projeto foi desenvolvido para a disciplina **P108** com o objetivo de auxiliar
 
 Deploy da aplicação:
 
-https://trabalho-p108.streamlit.app/
+https://teoriadasfilas.streamlit.app/
 
 ## Modelos Implementados
 
@@ -18,6 +18,10 @@ https://trabalho-p108.streamlit.app/
 - M/M/s>1
 - M/M/1/K
 - M/M/s>1/K
+- M/M/1/N
+- M/M/s>1/N
+- M/G/1
+- Modelo com prioridades
 
 ## Funcionalidades
 
@@ -47,10 +51,12 @@ Além disso:
 - Git
 - GitHub
 
+## Requisitos
+- Python 3.10+
+
 ## Como Executar o Projeto
 
 Clone o repositório:
-
 ```bash
 git clone https://github.com/wellingtonsouza27/Trabalho-P108.git
 ```
@@ -68,9 +74,13 @@ pip install -r requirements.txt
 ```
 
 Execute a aplicação:
+```bash
+streamlit run app.py
+```
 
 ```bash
-py -m streamlit run app.py
+# Caso o comando acima não funcione:
+python -m streamlit run app.py
 ```
 
 ## Estrutura do Projeto
