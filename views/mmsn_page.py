@@ -62,22 +62,26 @@ def render():
         usar_poisson = st.checkbox("Usar Poisson", key="mmsn_usar_poisson")
 
     if usar_n:
-        n = st.number_input(
-            "n",
-            min_value=0,
-            step=1,
-            key="mmsn_n"
-        )
+        col_n, col_tipo = st.columns([3, 1])
 
-        tipo_n = st.selectbox(
-            "Tipo de probabilidade",
-            [
-                "P(N=n)",
-                "P(N≤n)",
-                "P(N≥n)"
-            ],
-            key="mmsn_tipo_n"
-        )
+        with col_n:
+            n = st.number_input(
+                "n",
+                min_value=0,
+                step=1,
+                key="mm1k_n"
+            )
+
+        with col_tipo:
+            tipo_n = st.selectbox(
+                "Tipo de probabilidade",
+                [
+                    "P(N=n)",
+                    "P(N≤n)",
+                    "P(N≥n)"
+                ],
+                key="mm1k_tipo_n"
+            )
 
     if usar_poisson:
         poisson = st.number_input(
