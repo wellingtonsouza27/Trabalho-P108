@@ -134,3 +134,8 @@ class MMsK:
     def avg_time_system(self):
         l = self.avg_clients_system()
         return l / self.effective_lambda()
+
+    def prob_poisson(self, rate, x):
+        if x < 0:
+             raise ValueError("x deve ser >= 0")
+        return math.exp(-rate) * (rate ** x) / math.factorial(x)

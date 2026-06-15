@@ -63,3 +63,8 @@ class MM1:
 
     def avg_time_queue(self):
         return self._lambda_ / (self._mi * self.diff)
+
+    def prob_poisson(self, rate, x):
+        if x < 0:
+             raise ValueError("x deve ser >= 0")
+        return math.exp(-rate) * (rate ** x) / math.factorial(x)

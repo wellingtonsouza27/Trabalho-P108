@@ -42,13 +42,16 @@ def render():
 
     st.subheader("Parâmetros opcionais")
 
-    col4, col5 = st.columns(2)
+    col4, col5, col6 = st.columns(3)
 
     with col4:
         usar_n = st.checkbox("Usar n", key="mms_usar_n")
 
     with col5:
         usar_t = st.checkbox("Usar t", key="mms_usar_t")
+
+    with col6:
+        usar_poisson = st.checkbox("Usar Poisson", key="mms_usar_poisson")
 
     n = None
     t = None
@@ -85,6 +88,14 @@ def render():
         except:
             st.error("Digite um número válido para t")
             t = None
+
+    if usar_poisson:
+        poisson = st.number_input(
+            "Número de chegadas/atendimentos (x)",
+            min_value=0,
+            step=1,
+            key="mms_poisson"
+        )
 
     st.divider()
 
@@ -188,4 +199,27 @@ def render():
                         "Prob. Wq > t",
                         f"{prob_q:.4g}",
                         help=f"{prob_q*100:.2f}%"
+                    )
+
+        c10, c11 = st.columns(2)
+
+        if usar_poisson and poisson is not None:
+
+            prob_chegadas = fila.prob_poisson(lambda_, poisson)
+            prob_atendimentos= fila.prob_poisson(mi, poisson)
+
+            with c10:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. chegadas",
+                        f"{prob_chegadas:.4g}",
+                        help=f"{prob_chegadas*100:.2f}%"
+                    )
+
+            with c11:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. atendimentos",
+                        f"{prob_atendimentos:.4g}",
+                        help=f"{prob_atendimentos*100:.2f}%"
                     )

@@ -137,3 +137,8 @@ class MMS:
         )
 
         return termo1 + termo2
+
+    def prob_poisson(self, rate, x):
+        if x < 0:
+             raise ValueError("x deve ser >= 0")
+        return math.exp(-rate) * (rate ** x) / math.factorial(x)

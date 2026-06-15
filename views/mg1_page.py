@@ -32,6 +32,18 @@ def render():
     with col2:
         mi = input_mi("mg1")
 
+    col3, col4 = st.columns(2)
+    with col3:
+        usar_poisson = st.checkbox("Usar Poisson", key="mg1_usar_poisson")
+
+    if usar_poisson:
+        poisson = st.number_input(
+            "Número de chegadas/atendimentos (x)",
+            min_value=0,
+            step=1,
+            key="mg1_poisson"
+        )
+
     st.divider()
 
     if st.button("Calcular", key="mg1_btn"):
@@ -76,3 +88,27 @@ def render():
         with c6:
             with st.container(border=True):
                 st.metric("Tempo médio na fila (Wq)", f"{fila.avg_time_queue():.4g}")
+
+
+        c7, c8 = st.columns(2)
+
+        if usar_poisson and poisson is not None:
+
+            prob_chegadas = fila.prob_poisson(lambda_, poisson)
+            prob_atendimentos= fila.prob_poisson(mi, poisson)
+
+            with c7:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. chegadas",
+                        f"{prob_chegadas:.4g}",
+                        help=f"{prob_chegadas*100:.2f}%"
+                    )
+
+            with c8:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. atendimentos",
+                        f"{prob_atendimentos:.4g}",
+                        help=f"{prob_atendimentos*100:.2f}%"
+                    )

@@ -39,3 +39,8 @@ class MG1:
 
     def avg_time_system(self):
         return self.avg_time_queue() + (1 / self.mi)
+
+    def prob_poisson(self, rate, x):
+        if x < 0:
+             raise ValueError("x deve ser >= 0")
+        return math.exp(-rate) * (rate ** x) / math.factorial(x)

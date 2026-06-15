@@ -44,6 +44,9 @@ def render():
 
     with col4:
         usar_n = st.checkbox("Usar n", key="mm1k_usar_n")
+    
+    with col5:
+        usar_poisson = st.checkbox("Usar Poisson", key="mm1k_usar_poisson")
 
     n = None
     tipo_n = None
@@ -64,6 +67,14 @@ def render():
                 "P(N≥n)"
             ],
             key="mm1k_tipo_n"
+        )
+        
+    if usar_poisson:
+        poisson = st.number_input(
+            "Número de chegadas/atendimentos (x)",
+            min_value=0,
+            step=1,
+            key="mm1k_poisson"
         )
 
     st.divider()
@@ -147,4 +158,27 @@ def render():
                         titulo,
                         f"{resultado:.4g}",
                         help=f"{resultado*100:.2f}%"
+                    )
+
+        c9, c10 = st.columns(2)
+
+        if usar_poisson and poisson is not None:
+
+            prob_chegadas = fila.prob_poisson(lambda_, poisson)
+            prob_atendimentos= fila.prob_poisson(mi, poisson)
+
+            with c9:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. chegadas",
+                        f"{prob_chegadas:.4g}",
+                        help=f"{prob_chegadas*100:.2f}%"
+                    )
+
+            with c10:
+                with st.container(border=True):
+                    st.metric(
+                        "Prob. atendimentos",
+                        f"{prob_atendimentos:.4g}",
+                        help=f"{prob_atendimentos*100:.2f}%"
                     )
