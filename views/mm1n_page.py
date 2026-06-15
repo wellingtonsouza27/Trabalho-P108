@@ -61,7 +61,7 @@ def render():
                 "n",
                 min_value=0,
                 step=1,
-                key="mm1k_n"
+                key="mm1n_n"
             )
 
         with col_tipo:
@@ -72,7 +72,7 @@ def render():
                     "P(N≤n)",
                     "P(N≥n)"
                 ],
-                key="mm1k_tipo_n"
+                key="mm1n_tipo_n"
             )
 
     if usar_poisson:
