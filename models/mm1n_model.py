@@ -1,9 +1,11 @@
 import math
 
+
 class MM1N:
     def __init__(self, lambda_, mi, N):
         if lambda_ <= 0:
             raise ValueError("λ deve ser maior que zero")
+
         if mi <= 0:
             raise ValueError("μ deve ser maior que zero")
 
@@ -20,20 +22,26 @@ class MM1N:
         return self._lambda_ / self._mi
 
     def prob_idle(self):
-        sum1 = sum(
-            (math.factorial(self._N) / (math.factorial(self._N - i)))
+        soma = sum(
+            (
+                math.factorial(self._N)
+                / math.factorial(self._N - i)
+            )
             * (self.lambda_div_mi ** i)
-            for i in range(self._N)
+            for i in range(self._N + 1)
         )
 
-        return 1 / sum1
+        return 1 / soma
 
     def prob_n(self, num):
         if num < 0 or num > self._N:
             return 0
 
         return (
-            (math.factorial(self._N) / math.factorial(self._N - num))
+            (
+                math.factorial(self._N)
+                / math.factorial(self._N - num)
+            )
             * (self.lambda_div_mi ** num)
             * self.prob_idle()
         )
@@ -68,9 +76,8 @@ class MM1N:
         )
 
     def avg_clients_queue(self):
-        return self._N - (
-            ((self._lambda_ + self._mi) / self._lambda_)
-            * (1 - self.prob_idle())
+        return self.avg_clients_system() - (
+            1 - self.prob_idle()
         )
 
     def effective_lambda(self):
@@ -79,9 +86,17 @@ class MM1N:
         )
 
     def avg_time_queue(self):
-        lq = self.avg_clients_queue()
-        return lq / self.effective_lambda()
+        eff_lambda = self.effective_lambda()
+
+        if eff_lambda == 0:
+            return 0
+
+        return self.avg_clients_queue() / eff_lambda
 
     def avg_time_system(self):
-        l = self.avg_clients_system()
-        return l / self.effective_lambda()
+        eff_lambda = self.effective_lambda()
+
+        if eff_lambda == 0:
+            return 0
+
+        return self.avg_clients_system() / eff_lambda

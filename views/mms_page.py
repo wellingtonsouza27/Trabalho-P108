@@ -53,6 +53,7 @@ def render():
     n = None
     t = None
     tipo_n = None
+    tipo_t = None
 
     if usar_n:
         n = st.number_input(
@@ -78,6 +79,12 @@ def render():
             min_value=0.0,
             step=0.1,
             key="mms_t"
+        )
+
+        tipo_t = st.selectbox(
+            "Tipo de probabilidade para t",
+            ["T > t", "T = t", "T ≤ t"],
+            key="mms_tipo_t"
         )
 
         try:
@@ -174,18 +181,36 @@ def render():
             prob_sys = fila.prob_wait_system_greater_than(t)
             prob_q = fila.prob_wait_queue_greater_than(t)
 
+            if tipo_t == "T > t":
+                label_sys = "Prob. W > t"
+                label_q   = "Prob. Wq > t"
+                val_sys   = prob_sys
+                val_q     = prob_q
+
+            elif tipo_t == "T = t":
+                label_sys = "Prob. W = t"
+                label_q   = "Prob. Wq = t"
+                val_sys   = 0.0
+                val_q     = 0.0
+
+            else:  # T ≤ t
+                label_sys = "Prob. W ≤ t"
+                label_q   = "Prob. Wq ≤ t"
+                val_sys   = 1 - prob_sys
+                val_q     = 1 - prob_q
+
             with c8:
                 with st.container(border=True):
                     st.metric(
-                        "Prob. W > t",
-                        f"{prob_sys:.4g}",
-                        help=f"{prob_sys*100:.2f}%"
+                        label_sys,
+                        f"{val_sys:.4g}",
+                        help=f"{val_sys*100:.2f}%"
                     )
 
             with c9:
                 with st.container(border=True):
                     st.metric(
-                        "Prob. Wq > t",
-                        f"{prob_q:.4g}",
-                        help=f"{prob_q*100:.2f}%"
+                        label_q,
+                        f"{val_q:.4g}",
+                        help=f"{val_q*100:.2f}%"
                     )

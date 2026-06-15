@@ -1,29 +1,34 @@
 class MG1:
 
-    def __init__(self, lambda_, mi):
+    def __init__(self, lambda_, mi, sigma):
+        if lambda_ <= 0:
+            raise ValueError("λ deve ser maior que zero")
 
         if mi <= 0:
             raise ValueError("μ deve ser maior que zero")
 
-        rho = lambda_ / mi
+        if sigma < 0:
+            raise ValueError("σ deve ser >= 0")
 
+        rho = lambda_ / mi
         if rho >= 1:
             raise ValueError("Sistema instável (ρ >= 1)")
 
-        self.lambda_ = lambda_
-        self.mi = mi
+        self.lambda_ = float(lambda_)
+        self.mi = float(mi)
+        self.sigma = float(sigma)
 
     @property
     def rho(self):
         return self.lambda_ / self.mi
 
     @property
-    def p0(self):
-        return 1 - self.rho
+    def sigma2(self):
+        return self.sigma ** 2
 
     @property
-    def sigma2(self):
-        return (1 / self.mi) ** 2
+    def p0(self):
+        return 1 - self.rho
 
     def avg_clients_queue(self):
         return (

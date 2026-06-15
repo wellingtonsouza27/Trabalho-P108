@@ -6,25 +6,10 @@ from utils.input_helpers import input_mi
 
 
 def render():
-    st.markdown("""
-        <style>
-        [data-testid="stMetric"] {
-            text-align: center;
-        }
-        [data-testid="stMetricLabel"] {
-            display: flex;
-            justify-content: center;
-        }
-        [data-testid="stMetricValue"] {
-            display: flex;
-            justify-content: center;
-        }
-        </style>
-        """, unsafe_allow_html=True)
 
     st.header("Modelo M/G/1")
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         lambda_ = input_lambda("mg1")
@@ -32,47 +17,43 @@ def render():
     with col2:
         mi = input_mi("mg1")
 
+    with col3:
+        sigma = st.number_input(
+            "Desvio padrão do serviço (σ)",
+            min_value=0.0,
+            value=1.0,
+            step=0.1,
+            key="mg1_sigma"
+        )
+
     st.divider()
 
     if st.button("Calcular", key="mg1_btn"):
 
         try:
-            fila = MG1(lambda_, mi)
+            fila = MG1(lambda_, mi, sigma)
 
         except Exception as e:
             st.error(str(e))
             return
 
-        st.subheader("Resultados principais")
+        st.subheader("Resultados")
 
         c1, c2, c3 = st.columns(3)
 
         with c1:
-            with st.container(border=True):
-                st.metric("Taxa de ocupação (ρ)", f"{fila.rho:.4g}")
+            st.metric("Taxa de ocupação (ρ)", f"{fila.rho:.4f}")
 
         with c2:
-            with st.container(border=True):
-                st.metric(
-                    "Prob. do sistema ocioso (P0)",
-                    f"{fila.p0:.4g}",
-                    help=f"{fila.p0*100:.2f}%"
-                )
+            st.metric("Lq", f"{fila.avg_clients_queue():.4f}")
 
         with c3:
-            with st.container(border=True):
-                st.metric("Número médio no sistema (L)", f"{fila.avg_clients_system():.4g}")
+            st.metric("L", f"{fila.avg_clients_system():.4f}")
 
-        c4, c5, c6 = st.columns(3)
+        c4, c5 = st.columns(2)
 
         with c4:
-            with st.container(border=True):
-                st.metric("Número médio na fila (Lq)", f"{fila.avg_clients_queue():.4g}")
+            st.metric("Wq", f"{fila.avg_time_queue():.4f}")
 
         with c5:
-            with st.container(border=True):
-                st.metric("Tempo médio no sistema (W)", f"{fila.avg_time_system():.4g}")
-
-        with c6:
-            with st.container(border=True):
-                st.metric("Tempo médio na fila (Wq)", f"{fila.avg_time_queue():.4g}")
+            st.metric("W", f"{fila.avg_time_system():.4f}")

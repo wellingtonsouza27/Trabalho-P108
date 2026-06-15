@@ -1,11 +1,22 @@
 import math
 
+
 class MMsN:
     def __init__(self, lambda_, mi, N, s):
         if lambda_ <= 0:
             raise ValueError("λ deve ser maior que zero")
+
         if mi <= 0:
             raise ValueError("μ deve ser maior que zero")
+
+        if N <= 0:
+            raise ValueError("N deve ser maior que zero")
+
+        if s <= 0:
+            raise ValueError("s deve ser maior que zero")
+
+        if s > N:
+            raise ValueError("s não pode ser maior que N")
 
         self._lambda_ = float(lambda_)
         self._mi = float(mi)
@@ -122,9 +133,17 @@ class MMsN:
         )
 
     def avg_time_queue(self):
-        lq = self.avg_clients_queue()
-        return lq / self.effective_lambda()
+        effective_lambda = self.effective_lambda()
+
+        if effective_lambda == 0:
+            return 0
+
+        return self.avg_clients_queue() / effective_lambda
 
     def avg_time_system(self):
-        l = self.avg_clients_system()
-        return l / self.effective_lambda()
+        effective_lambda = self.effective_lambda()
+
+        if effective_lambda == 0:
+            return 0
+
+        return self.avg_clients_system() / effective_lambda
