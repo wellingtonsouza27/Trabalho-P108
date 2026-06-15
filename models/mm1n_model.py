@@ -14,26 +14,69 @@ class MM1N:
     @property
     def rho(self):
         return (self._N * self._lambda_) / self._mi
-    
+
     @property
     def lambda_div_mi(self):
         return self._lambda_ / self._mi
 
     def prob_idle(self):
-        sum1 = sum((math.factorial(self._N) / (math.factorial(self._N - i))) * (self.lambda_div_mi ** i) for i in range(self._N))
+        sum1 = sum(
+            (math.factorial(self._N) / (math.factorial(self._N - i)))
+            * (self.lambda_div_mi ** i)
+            for i in range(self._N)
+        )
+
         return 1 / sum1
 
     def prob_n(self, num):
-        return (math.factorial(self._N) / math.factorial(self._N - num)) * (self.lambda_div_mi ** num) * self.prob_idle()
+        if num < 0 or num > self._N:
+            return 0
+
+        return (
+            (math.factorial(self._N) / math.factorial(self._N - num))
+            * (self.lambda_div_mi ** num)
+            * self.prob_idle()
+        )
+
+    def prob_less_equal_n(self, n):
+        if n < 0:
+            return 0
+
+        n = min(n, self._N)
+
+        return sum(
+            self.prob_n(i)
+            for i in range(n + 1)
+        )
+
+    def prob_greater_equal_n(self, n):
+        if n <= 0:
+            return 1
+
+        if n > self._N:
+            return 0
+
+        return sum(
+            self.prob_n(i)
+            for i in range(n, self._N + 1)
+        )
 
     def avg_clients_system(self):
-        return self._N - ((self._mi / self._lambda_) * (1 - self.prob_idle()))
-    
+        return self._N - (
+            (self._mi / self._lambda_)
+            * (1 - self.prob_idle())
+        )
+
     def avg_clients_queue(self):
-        return self._N - ((self._lambda_ + self._mi) / self._lambda_) * (1 - self.prob_idle())
+        return self._N - (
+            ((self._lambda_ + self._mi) / self._lambda_)
+            * (1 - self.prob_idle())
+        )
 
     def effective_lambda(self):
-        return self._lambda_ * (self._N - self.avg_clients_system())
+        return self._lambda_ * (
+            self._N - self.avg_clients_system()
+        )
 
     def avg_time_queue(self):
         lq = self.avg_clients_queue()

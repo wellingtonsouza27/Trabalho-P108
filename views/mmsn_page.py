@@ -39,7 +39,7 @@ def render():
             step=1,
             key="mmsn_N"
         )
-    
+
     with col4:
         s = st.number_input(
             "Servidores (s)",
@@ -56,6 +56,7 @@ def render():
         usar_n = st.checkbox("Usar n", key="mmsn_usar_n")
 
     n = None
+    tipo_n = None
 
     if usar_n:
         n = st.number_input(
@@ -64,6 +65,17 @@ def render():
             step=1,
             key="mmsn_n"
         )
+
+        tipo_n = st.selectbox(
+            "Tipo de probabilidade",
+            [
+                "P(N=n)",
+                "P(N≤n)",
+                "P(N≥n)"
+            ],
+            key="mmsn_tipo_n"
+        )
+
     st.divider()
 
     if st.button("Calcular", key="mmsn_btn"):
@@ -93,38 +105,56 @@ def render():
 
         with c3:
             with st.container(border=True):
-                st.metric("Número médio no sistema (L)", f"{fila.avg_clients_system():.4g}")
+                st.metric(
+                    "Número médio no sistema (L)",
+                    f"{fila.avg_clients_system():.4g}"
+                )
 
         c4, c5, c6 = st.columns(3)
 
         with c4:
             with st.container(border=True):
-                st.metric("Número médio na fila (Lq)", f"{fila.avg_clients_queue():.4g}")
+                st.metric(
+                    "Número médio na fila (Lq)",
+                    f"{fila.avg_clients_queue():.4g}"
+                )
 
         with c5:
             with st.container(border=True):
-                st.metric("Tempo médio no sistema (W)", f"{fila.avg_time_system():.4g}")
+                st.metric(
+                    "Tempo médio no sistema (W)",
+                    f"{fila.avg_time_system():.4g}"
+                )
 
         with c6:
             with st.container(border=True):
-                st.metric("Tempo médio na fila (Wq)", f"{fila.avg_time_queue():.4g}")
+                st.metric(
+                    "Tempo médio na fila (Wq)",
+                    f"{fila.avg_time_queue():.4g}"
+                )
 
         st.subheader("Resultados condicionais")
 
         c7, c8, c9 = st.columns(3)
-        
-        with c7:
-            pass
 
         if usar_n:
-            prob_n = fila.prob_n(n)
+
+            if tipo_n == "P(N=n)":
+                resultado = fila.prob_n(n)
+                titulo = "Prob. de haver exatamente n clientes"
+
+            elif tipo_n == "P(N≤n)":
+                resultado = fila.prob_less_equal_n(n)
+                titulo = "Prob. de haver até n clientes"
+
+            else:
+                resultado = fila.prob_greater_equal_n(n)
+                titulo = "Prob. de haver pelo menos n clientes"
+
             with c8:
                 with st.container(border=True):
                     st.metric(
-                        "Prob. de haver n clientes", 
-                        f"{prob_n:.4g}",
-                        help=f"{prob_n*100:.2f}%"
-                        )
-        
-        with c9:
-            pass
+                        titulo,
+                        f"{resultado:.4g}",
+                        help=f"{resultado*100:.2f}%"
+                    )

@@ -43,25 +43,41 @@ def render():
         usar_r = st.checkbox("Usar r", key="mm1_usar_r")
 
     n = t = r = None
+    tipo_n = None
 
     if usar_n:
-        n = st.number_input("n", min_value=0, step=1, key="mm1_n")
+        n = st.number_input(
+            "n",
+            min_value=0,
+            step=1,
+            key="mm1_n"
+        )
+
+        tipo_n = st.selectbox(
+            "Tipo de probabilidade",
+            [
+                "P(N=n)",
+                "P(N≤n)",
+                "P(N≥n)"
+            ],
+            key="mm1_tipo_n"
+        )
 
     if usar_t:
-        t_str = st.number_input(
+        t = st.number_input(
             "t",
             min_value=0.0,
             step=0.1,
             key="mm1_t"
         )
-        try:
-            t = float(t_str) if t_str else None
-        except:
-            st.error("Digite um número válido para t")
-            t = None
 
     if usar_r:
-        r = st.number_input("r", min_value=0, step=1, key="mm1_r")
+        r = st.number_input(
+            "r",
+            min_value=0,
+            step=1,
+            key="mm1_r"
+        )
 
     st.divider()
 
@@ -83,7 +99,10 @@ def render():
 
         with c1:
             with st.container(border=True):
-                st.metric("Taxa de ocupação (ρ)", f"{fila.rho:.4g}")
+                st.metric(
+                    "Taxa de ocupação (ρ)",
+                    f"{fila.rho:.4g}"
+                )
 
         with c2:
             with st.container(border=True):
@@ -95,38 +114,60 @@ def render():
 
         with c3:
             with st.container(border=True):
-                st.metric("Número médio no sistema (L)", f"{fila.avg_clients_system():.4g}")
+                st.metric(
+                    "Número médio no sistema (L)",
+                    f"{fila.avg_clients_system():.4g}"
+                )
 
         c4, c5, c6 = st.columns(3)
 
         with c4:
             with st.container(border=True):
-                st.metric("Número médio na fila (Lq)", f"{fila.avg_clients_queue():.4g}")
+                st.metric(
+                    "Número médio na fila (Lq)",
+                    f"{fila.avg_clients_queue():.4g}"
+                )
 
         with c5:
             with st.container(border=True):
-                st.metric("Tempo médio no sistema (W)", f"{fila.avg_time_system():.4g}")
+                st.metric(
+                    "Tempo médio no sistema (W)",
+                    f"{fila.avg_time_system():.4g}"
+                )
 
         with c6:
             with st.container(border=True):
-                st.metric("Tempo médio na fila (Wq)", f"{fila.avg_time_queue():.4g}")
+                st.metric(
+                    "Tempo médio na fila (Wq)",
+                    f"{fila.avg_time_queue():.4g}"
+                )
 
         st.subheader("Resultados condicionais")
 
         c7, c8 = st.columns(2)
 
         if usar_n:
-            prob_n = fila.prob_n(n)
+
+            if tipo_n == "P(N=n)":
+                resultado_n = fila.prob_n(n)
+
+            elif tipo_n == "P(N≤n)":
+                resultado_n = fila.prob_less_equal_n(n)
+
+            elif tipo_n == "P(N≥n)":
+                resultado_n = fila.prob_greater_equal_n(n)
+
             with c7:
                 with st.container(border=True):
                     st.metric(
-                        "Prob. de haver n clientes", 
-                        f"{prob_n:.4g}",
-                        help=f"{prob_n*100:.2f}%"
-                        )
+                        tipo_n,
+                        f"{resultado_n:.4g}",
+                        help=f"{resultado_n*100:.2f}%"
+                    )
 
         if usar_r:
             prob_r = fila.prob_greater_r(r)
+
             with c8:
                 with st.container(border=True):
                     st.metric(
@@ -138,8 +179,10 @@ def render():
         c9, c10 = st.columns(2)
 
         if usar_t and t is not None:
+
             prob_sys = fila.prob_wait_system_greater_than(t)
             prob_q = fila.prob_wait_queue_greater_than(t)
+
             with c9:
                 with st.container(border=True):
                     st.metric(
@@ -147,7 +190,7 @@ def render():
                         f"{prob_sys:.4g}",
                         help=f"{prob_sys*100:.2f}%"
                     )
-            
+
             with c10:
                 with st.container(border=True):
                     st.metric(

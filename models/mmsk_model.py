@@ -29,6 +29,7 @@ class MMsK:
             (self.lambda_div_mi ** i) / math.factorial(i)
             for i in range(self._s)
         )
+
         sum2 = (
             (self.lambda_div_mi ** self._s)
             / math.factorial(self._s)
@@ -36,32 +37,95 @@ class MMsK:
             self.rho ** (j - self._s)
             for j in range(self._s, self._k + 1)
         )
+
         return 1 / (sum1 + sum2)
 
     def prob_n(self, n):
         if n < 0 or n > self._k:
             return 0
-        if n < self._s:
-            return ((self.lambda_div_mi ** n) / math.factorial(n)) * self.prob_idle()
-        else:
-            return ((self.lambda_div_mi ** n) / (math.factorial(self._s) * (self._s ** (n - self._s)))) * self.prob_idle()
 
+        if n < self._s:
+            return (
+                (self.lambda_div_mi ** n)
+                / math.factorial(n)
+            ) * self.prob_idle()
+
+        return (
+            (self.lambda_div_mi ** n)
+            / (
+                math.factorial(self._s)
+                * (self._s ** (n - self._s))
+            )
+        ) * self.prob_idle()
+
+    def prob_less_equal_n(self, n):
+        if n < 0:
+            return 0
+
+        n = min(n, self._k)
+
+        return sum(
+            self.prob_n(i)
+            for i in range(n + 1)
+        )
+
+    def prob_greater_equal_n(self, n):
+        if n <= 0:
+            return 1
+
+        if n > self._k:
+            return 0
+
+        return sum(
+            self.prob_n(i)
+            for i in range(n, self._k + 1)
+        )
 
     def avg_clients_system(self):
-        sum1 = sum(i * self.prob_n(i) for i in range(self._s))
-        sum2 = sum(self.prob_n(i) for i in range(self._s))
+        sum1 = sum(
+            i * self.prob_n(i)
+            for i in range(self._s)
+        )
+
+        sum2 = sum(
+            self.prob_n(i)
+            for i in range(self._s)
+        )
+
         lq = self.avg_clients_queue()
-        return sum1 + lq + self._s * (1 - sum2)
-    
+
+        return (
+            sum1
+            + lq
+            + self._s * (1 - sum2)
+        )
+
     def avg_clients_queue(self):
         x = (1 - self.rho)
+
         power = self.rho ** (self._k - self._s)
-        div = (self.prob_idle() * (self.lambda_div_mi ** self._s) * self.rho) / (math.factorial(self._s) * (x ** 2))
-        brackets = (1 - power - ((self._k - self._s)* power * x))
+
+        div = (
+            self.prob_idle()
+            * (self.lambda_div_mi ** self._s)
+            * self.rho
+        ) / (
+            math.factorial(self._s)
+            * (x ** 2)
+        )
+
+        brackets = (
+            1
+            - power
+            - ((self._k - self._s) * power * x)
+        )
+
         return div * brackets
 
     def effective_lambda(self):
-        return self._lambda_ * (1 - self.prob_n(self._k))
+        return self._lambda_ * (
+            1 - self.prob_n(self._k)
+        )
 
     def avg_time_queue(self):
         lq = self.avg_clients_queue()

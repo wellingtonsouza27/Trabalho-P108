@@ -14,7 +14,9 @@ class MMS:
         self._s = int(s)
 
         if self.rho >= 1:
-            raise ValueError(f"Sistema instável: a taxa de ocupação (ρ = {self.rho:.2f}) deve ser menor que 1.")
+            raise ValueError(
+                f"Sistema instável: a taxa de ocupação (ρ = {self.rho:.2f}) deve ser menor que 1."
+            )
 
     @property
     def rho(self):
@@ -27,30 +29,59 @@ class MMS:
     @property
     def p0(self):
         soma = 0
+
         for n in range(self._s):
             soma += (self.a ** n) / math.factorial(n)
 
-        termo_final = ((self.a ** self._s) / math.factorial(self._s)) * (
-            1 / (1 - self.rho)
-        )
+        termo_final = (
+            (self.a ** self._s)
+            / math.factorial(self._s)
+        ) * (1 / (1 - self.rho))
+
         return 1 / (soma + termo_final)
 
     def prob_n(self, n):
         if n < 0:
-            raise ValueError("n deve ser >= 0")
+            return 0
+
         if n <= self._s:
-            return ((self.a ** n) / math.factorial(n)) * self.p0
-        else:
-            return ((self.a ** n) / (
-                math.factorial(self._s) * (self._s ** (n - self._s))
-            )) * self.p0
+            return (
+                (self.a ** n)
+                / math.factorial(n)
+            ) * self.p0
+
+        return (
+            (self.a ** n)
+            / (
+                math.factorial(self._s)
+                * (self._s ** (n - self._s))
+            )
+        ) * self.p0
+
+    def prob_less_equal_n(self, n):
+        if n < 0:
+            return 0
+
+        return sum(
+            self.prob_n(i)
+            for i in range(n + 1)
+        )
+
+    def prob_greater_equal_n(self, n):
+        if n <= 0:
+            return 1
+
+        return 1 - self.prob_less_equal_n(n - 1)
 
     def avg_clients_queue(self):
         return (
             self.p0
             * (self.a ** self._s)
             * self.rho
-            / (math.factorial(self._s) * ((1 - self.rho) ** 2))
+            / (
+                math.factorial(self._s)
+                * ((1 - self.rho) ** 2)
+            )
         )
 
     def avg_time_queue(self):
@@ -63,25 +94,23 @@ class MMS:
         return self.avg_time_queue() + (1 / self._mi)
 
     def prob_wait_queue_greater_than(self, t):
-        """P(Wq > t)"""
         if t < 0:
             raise ValueError("t deve ser >= 0")
 
-        # Erlang C
         c = (
             ((self.a ** self._s) / math.factorial(self._s))
             * (1 / (1 - self.rho))
             * self.p0
         )
 
-        return c * math.exp(-(self._s * self._mi - self._lambda_) * t)
+        return c * math.exp(
+            -(self._s * self._mi - self._lambda_) * t
+        )
 
     def prob_wait_system_greater_than(self, t):
-        """P(W > t)"""
         if t < 0:
             raise ValueError("t deve ser >= 0")
 
-        # Erlang C
         c = (
             ((self.a ** self._s) / math.factorial(self._s))
             * (1 / (1 - self.rho))
@@ -90,13 +119,14 @@ class MMS:
 
         alpha = self._s * self._mi - self._lambda_
 
-        # Caso especial para evitar divisão por zero
         if abs(alpha - self._mi) < 1e-9:
             return math.exp(-self._mi * t) * (
                 1 + c * self._mi * t
             )
 
-        termo1 = (1 - c) * math.exp(-self._mi * t)
+        termo1 = (1 - c) * math.exp(
+            -self._mi * t
+        )
 
         termo2 = c * (
             (

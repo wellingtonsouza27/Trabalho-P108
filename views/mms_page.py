@@ -19,7 +19,7 @@ def render():
     }
     </style>
     """, unsafe_allow_html=True)
-    
+
     st.header("Modelo M/M/s>1")
 
     col1, col2 = st.columns(2)
@@ -50,7 +50,9 @@ def render():
     with col5:
         usar_t = st.checkbox("Usar t", key="mms_usar_t")
 
-    n = t = None
+    n = None
+    t = None
+    tipo_n = None
 
     if usar_n:
         n = st.number_input(
@@ -60,6 +62,16 @@ def render():
             key="mms_n"
         )
 
+        tipo_n = st.selectbox(
+            "Tipo de probabilidade",
+            [
+                "P(N=n)",
+                "P(N≤n)",
+                "P(N≥n)"
+            ],
+            key="mms_tipo_n"
+        )
+
     if usar_t:
         t_str = st.number_input(
             "t",
@@ -67,6 +79,7 @@ def render():
             step=0.1,
             key="mms_t"
         )
+
         try:
             t = float(t_str) if t_str else None
         except:
@@ -102,39 +115,65 @@ def render():
 
         with c3:
             with st.container(border=True):
-                st.metric("Número médio no sistema (L)", f"{fila.avg_clients_system():.4g}")
+                st.metric(
+                    "Número médio no sistema (L)",
+                    f"{fila.avg_clients_system():.4g}"
+                )
 
         c4, c5, c6 = st.columns(3)
 
         with c4:
             with st.container(border=True):
-                st.metric("Número médio na fila (Lq)", f"{fila.avg_clients_queue():.4g}")
+                st.metric(
+                    "Número médio na fila (Lq)",
+                    f"{fila.avg_clients_queue():.4g}"
+                )
 
         with c5:
             with st.container(border=True):
-                st.metric("Tempo médio no sistema (W)", f"{fila.avg_time_system():.4g}")
+                st.metric(
+                    "Tempo médio no sistema (W)",
+                    f"{fila.avg_time_system():.4g}"
+                )
 
         with c6:
             with st.container(border=True):
-                st.metric("Tempo médio na fila (Wq)", f"{fila.avg_time_queue():.4g}")
+                st.metric(
+                    "Tempo médio na fila (Wq)",
+                    f"{fila.avg_time_queue():.4g}"
+                )
 
         st.subheader("Resultados condicionais")
 
         c7, c8, c9 = st.columns(3)
 
         if usar_n:
-            prob_n = fila.prob_n(n)
+
+            if tipo_n == "P(N=n)":
+                resultado = fila.prob_n(n)
+                titulo = "Prob. de haver exatamente n clientes"
+
+            elif tipo_n == "P(N≤n)":
+                resultado = fila.prob_less_equal_n(n)
+                titulo = "Prob. de haver até n clientes"
+
+            else:
+                resultado = fila.prob_greater_equal_n(n)
+                titulo = "Prob. de haver pelo menos n clientes"
+
             with c7:
                 with st.container(border=True):
                     st.metric(
-                        "Prob. de haver n clientes", 
-                        f"{prob_n:.4g}",
-                        help=f"{prob_n*100:.2f}%"
-                        )
+                        titulo,
+                        f"{resultado:.4g}",
+                        help=f"{resultado*100:.2f}%"
+                    )
 
         if usar_t and t is not None:
+
             prob_sys = fila.prob_wait_system_greater_than(t)
             prob_q = fila.prob_wait_queue_greater_than(t)
+
             with c8:
                 with st.container(border=True):
                     st.metric(
@@ -142,7 +181,7 @@ def render():
                         f"{prob_sys:.4g}",
                         help=f"{prob_sys*100:.2f}%"
                     )
-            
+
             with c9:
                 with st.container(border=True):
                     st.metric(
