@@ -1,7 +1,7 @@
 import streamlit as st
 from models.mm1k_model import MM1K
 from utils.input_helpers import input_lambda, input_mi
-
+from utils.tables import mostrar_tabela_n
 
 def render():
     st.markdown("""
@@ -186,3 +186,5 @@ def render():
                         f"{prob_atendimentos:.4g}",
                         help=f"{prob_atendimentos*100:.2f}%"
                     )
+    
+        mostrar_tabela_n(fila)

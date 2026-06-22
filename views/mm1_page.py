@@ -1,6 +1,9 @@
 import streamlit as st
+import pandas as pd
 from models.mm1_model import MM1
 from utils.input_helpers import input_lambda, input_mi
+from utils.tables import mostrar_tabela_n
+
 
 def render():
     st.markdown("""
@@ -41,11 +44,11 @@ def render():
 
     with col5:
         usar_r = st.checkbox("Usar r", key="mm1_usar_r")
-    
+
     with col6:
         usar_poisson = st.checkbox("Usar Poisson", key="mm1_usar_poisson")
 
-    n = t = r = None
+    n = t = r = poisson = None
     tipo_n = None
 
     if usar_n:
@@ -85,7 +88,7 @@ def render():
             step=1,
             key="mm1_r"
         )
-    
+
     if usar_poisson:
         poisson = st.number_input(
             "Número de chegadas/atendimentos (x)",
@@ -161,7 +164,7 @@ def render():
 
         c7, c8 = st.columns(2)
 
-        if usar_n:
+        if usar_n and n is not None:
 
             if tipo_n == "P(N=n)":
                 resultado_n = fila.prob_n(n)
@@ -180,7 +183,7 @@ def render():
                         help=f"{resultado_n*100:.2f}%"
                     )
 
-        if usar_r:
+        if usar_r and r is not None:
             prob_r = fila.prob_greater_r(r)
 
             with c8:
@@ -219,7 +222,7 @@ def render():
         if usar_poisson and poisson is not None:
 
             prob_chegadas = fila.prob_poisson(lambda_, poisson)
-            prob_atendimentos= fila.prob_poisson(mi, poisson)
+            prob_atendimentos = fila.prob_poisson(mi, poisson)
 
             with c11:
                 with st.container(border=True):
@@ -236,3 +239,5 @@ def render():
                         f"{prob_atendimentos:.4g}",
                         help=f"{prob_atendimentos*100:.2f}%"
                     )
+
+        mostrar_tabela_n(fila)
